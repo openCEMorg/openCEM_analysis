@@ -1,0 +1,9 @@
+# Add any directories, files, or patterns you don't want to be tracked by version control
+*.json
+*.pyc
+*.pyo
+*__pycache__*
+*pytest_cache*
+__init__.py
+*.log
+*.gz
