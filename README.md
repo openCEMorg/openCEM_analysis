@@ -21,6 +21,9 @@ The following is a draft set of features desired for this project:
 - Costs per year
 - Emissions per year
 
+## Outputs
+- Export data to other formats, e.g. xlsx
+
 # Requirements
 - The scripts must be written in Python3
 - Scripts shall score 8 or above in pylint 
