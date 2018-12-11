@@ -1,11 +1,12 @@
 import ijson
 
-def ijson_parser(ijson_index):
+def ijson_parser(year, field):
+    """ Parses section of the json file using ijson based on given year and field."""
+    #generating index within json file
+    ijson_index = year + "." + field + "." + "intercon_disp"
     filename = "ISP_S_nc_sol_unzipped.json"
-    with open(filename, 'r') as f:
-        objects = ijson.items(f,ijson_index)
+    #loading json data
+    with open(filename, 'r') as json_file:
+        objects = ijson.items(json_file, ijson_index)
         variable_list = list(objects)
-    print(variable_list)
-    return(variable_list)
-#ijson_parser(2020,"hello")
-#2020.sets.regions.fuel_tech_in_zones
+    return variable_list
