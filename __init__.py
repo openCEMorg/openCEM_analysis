@@ -8,4 +8,4 @@ MODULE_DIR = os.path.dirname(__file__)
 CONFIG = configparser.RawConfigParser()
 CONFIG.read(os.path.join(MODULE_DIR, 'config.ini'))
 
-ENGINE = create_engine("sqlite:///{0}".format(os.path.join(CONFIG["local"]["db_path"], "test.db")))
+ENGINE = create_engine("sqlite:///{0}".format(CONFIG["local"]["db_path"]))
