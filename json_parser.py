@@ -1,14 +1,18 @@
 """Module for parsing json file output, and storing in SQL db"""
+import json
 import os
 from collections import namedtuple
-import json
+
 import pandas as pd
+
 from cemo_outputs import CONFIG, ENGINE
+
 
 class CemoJsonFile(object):
     """CEMO JSON File class
     Loads JSON file and contains method to process the yearly data (and meta data in the
     future)"""
+
     def __init__(self, filename="ISP_N_cp_sol.json"):
         self.filename = filename
         self.load_json()
@@ -27,8 +31,10 @@ class CemoJsonFile(object):
             year_data.load_data(self)
             year_data.process_vars()
 
+
 class YearData(object):
     """Class to process datasets from each year of output"""
+
     def __init__(self, year="2020"):
         self.year = year
         self.data = None
@@ -45,8 +51,10 @@ class YearData(object):
             dataset.parse_all(self)
             dataset.insert_dataset()
 
+
 class VariableDataset(object):
     """ Class to parse and insert the data from a particular dataset into an SQL db"""
+
     def __init__(self, variable_map):
         self.variable_map = variable_map
         self.dataframe = None
@@ -56,7 +64,7 @@ class VariableDataset(object):
         formatted list more suitable for creating a pandas dataframe. Uses this to formatted list
         to generate and return dataframe"""
         raw_list = yeardata.data['vars'][var]
-        formated_list = [i['index']+[i['value']] for i in raw_list]
+        formated_list = [i['index'] + [i['value']] + [var] + [yeardata.year] for i in raw_list]
         dataframe = pd.DataFrame(formated_list)
         dataframe.columns = self.variable_map.columns
         return dataframe
@@ -73,6 +81,7 @@ class VariableDataset(object):
                               if_exists="append",
                               index=None)
 
+
 #  class factory function for variable dataset metadata
 VariableMap = namedtuple("VariableMap",
                          ["dataset_name",
@@ -80,41 +89,41 @@ VariableMap = namedtuple("VariableMap",
                           "variable_list"])
 
 VARIABLES = {
-    "generation" : VariableMap(
+    "generation": VariableMap(
         dataset_name="generation",
-        columns=['ntndp_zone_id', 'technology_type_id', 'timestable', 'value'],
+        columns=['ntndp_zone_id', 'technology_type_id', 'timestable', 'value', 'name', 'year'],
         variable_list=["gen_disp", "stor_disp", "hyb_disp"]),
-    "scheduled_load" : VariableMap(
+    "scheduled_load": VariableMap(
         dataset_name="scheduled_load",
-        columns=['ntndp_zone_id', 'technology_type_id', 'timestamp', 'value'],
+        columns=['ntndp_zone_id', 'technology_type_id', 'timestamp', 'value', 'name', 'year'],
         variable_list=["stor_charge", "hyb_charge"]),
-    "storage_level" : VariableMap(
+    "storage_level": VariableMap(
         dataset_name="storage_level",
-        columns=['ntndp_zone_id', 'technology_type_id', 'timestamp', 'value'],
+        columns=['ntndp_zone_id', 'technology_type_id', 'timestamp', 'value', 'name', 'year'],
         variable_list=["stor_level", "hyb_level"]),
-    "energy_balance" : VariableMap(
+    "energy_balance": VariableMap(
         dataset_name="energy_balance",
-        columns=['region_id', 'timestamp', 'value'],
+        columns=['region_id', 'timestamp', 'value', 'name', 'year'],
         variable_list=["unserved", "surplus"]),
-    "interconnector" : VariableMap(
+    "interconnector": VariableMap(
         dataset_name="interconnector",
-        columns=['region_id', 'technology_type_id', 'timestamp', 'value'],
+        columns=['region_id', 'technology_type_id', 'timestamp', 'value', 'name', 'year'],
         variable_list=["intercon_disp"]),
-    "new_capacity" : VariableMap(
+    "new_capacity": VariableMap(
         dataset_name="new_capacity",
-        columns=['ntndp_zone_id', 'technology_type_id', 'value'],
+        columns=['ntndp_zone_id', 'technology_type_id', 'value', 'name', 'year'],
         variable_list=["gen_cap_new", "stor_cap_new", "hyb_cap_new"]),
-    "existing_capacity" : VariableMap(
+    "existing_capacity": VariableMap(
         dataset_name="existing_capacity",
-        columns=['ntndp_zone_id', 'technology_type_id', 'value'],
+        columns=['ntndp_zone_id', 'technology_type_id', 'value', 'name', 'year'],
         variable_list=["gen_cap_op", "stor_cap_op", "hyb_cap_op"]),
-    "exogenous_capacity" : VariableMap(
+    "exogenous_capacity": VariableMap(
         dataset_name="exogenous_capacity",
-        columns=['ntndp_zone_id', 'technology_type_id', 'value'],
+        columns=['ntndp_zone_id', 'technology_type_id', 'value', 'name', 'year'],
         variable_list=["gen_cap_ret", "gen_cap_ret_neg"])
-    }
+}
 
-#need to check - gen_cap_op = existing?
+# need to check - gen_cap_op = existing?
 # exogenous capacity?
-#interconnector columns?
+# interconnector columns?
 #"unserved", "surplus" columns?
