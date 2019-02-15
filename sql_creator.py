@@ -17,20 +17,26 @@ def create_test_table():
                                      "demand_scenario"  : ['source'],
                                      "technology_type"  : ['resource_type', 'connection_type', 'schedule_type'],
                                      "ntndp_wind_bubbles": ['ntndp_zone', 'wind_bubble'],
-                                     "ntndp_isp_zones"  : ['ntndp_zone', 'isp_re_zone']}.items():
+                                     "ntndp_isp_zones"  : ['ntndp_zone', 'isp_re_zone'],
+                                     "fuel_scenario"  : ['source']}.items():
         table=base_table(table_name, metadata)
         add_foreign_keys(table, metadata, foreign_keys=foreign_keys)
 
     for table_name, (foreign_keys, columns) in {"opex"					:	[['source', 'technology_type'], {"fom": Numeric, "vom": Numeric}],
                                                 "build_limit"			:	[['isp_re_zone'], {'wind_high': Numeric, 'wind_medium':Numeric,'solar':Numeric, 'phes':Numeric}],
-                                                "transmission":	[['isp_re_zone','ntndp_zone'], {'transmission_limit':Numeric,'transmission_cost':Numeric}]}.items():
+                                                "transmission":	[['isp_re_zone','ntndp_zone'], {'transmission_limit':Numeric,'transmission_cost':Numeric}],
+                                                "isp_connection_costs": [['ntndp_zone', 'technology_type'], {"connection_cost":Numeric}]
+                                                }.items():
         table=base_table(table_name, metadata)
         add_foreign_keys(table, metadata, foreign_keys=foreign_keys)
         add_columns(table, metadata, columns)
 
     for table_name, (foreign_keys, columns) in {"wind_and_solar_traces"		:	[['technology_type', 'source', 'ntndp_zone','wind_bubble', 'isp_re_zone'], {"mw":Numeric, "timestamp": DateTime}],
                                                 "demand_and_rooftop_traces"	:	[['region', 'demand_scenario'],{"poe10": Numeric, 'rooftop_solar': Numeric, "timestamp": DateTime}], 
-                                                "capex": [['demand_scenario', 'technology_type','ntndp_zone'], {"capex": Numeric,"year":Integer}]}.items():
+                                                "capacity": [['ntndp_zone', 'technology_type', 'region'], {'stationid': String(10), 'station_name': String(80), 'reg_cap': Numeric, 'retirement_year': Integer, 'commissioning_year': Integer}],
+                                                "fuel_price": [['capacity', 'fuel_scenario'], {'price':Numeric}],
+                                                "ntndp_capex": [['demand_scenario', 'technology_type','ntndp_zone'], {"capex": Numeric,"year": Integer}],
+                                                "isp_capex" : [['demand_scenario', 'technology_type'], {"capex": Numeric,"year": Integer}]}.items():
         table=data_table(table_name, metadata)
         add_foreign_keys(table, metadata, foreign_keys=foreign_keys)
         add_columns(table, metadata, columns)
