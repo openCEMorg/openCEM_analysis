@@ -2,6 +2,8 @@ import sqlite3
 import pandas as pd
 from dateutil.parser import parse
 
+""" Set of basic functions used throughout."""
+
 def sql_reader(query):
     conn = sqlite3.connect("test.db")
     df = pd.read_sql_query(query, conn)

@@ -107,14 +107,17 @@ def calc_stats(reserve_margin, sel_years):
         min_mrg[i[0]] = reserve_margin[i[0]].max()["value"]
     return min_time, min_mrg, rsv_mrg_mean
 
-def yearly_plots(total_capacity, sel_years):
-    plt.plot(sel_years, total_capacity)
-    plt.xlabel("Years")
-    plt.ylabel("Capacity (MW)")
-    plt.savefig("Yearly_Capacity.png")
-    plt.show()
-    plt.clf()
-
+def yearly_plots(reserve_margin, sel_years):
+    """Makes yearly plots for of the reserve margin. This is very slow. Done
+    out of interest more than anything."""
+    for i in enumerate(reserve_margin):
+        current_time_series = i[1].index
+        current_margin = i[1].value
+        plt.plot(current_time_series, current_margin, linewidth=0.1)
+        filename = str(sel_years[i[0]]) + "_reserve_margin.png"
+        plt.savefig(filename)
+        plt.clf()
+        #plt.show()
 
 def value_test():
     """ Simple value checks for loaded data."""
@@ -124,12 +127,9 @@ def value_test():
     assert min(capacity) > 0, "Capacity has zero valued member."
     reserve_margin = calc_margin(capacity, generation, YRS)
     assert min(reserve_margin) > 0, "Reserve margin has zero valued member."
-    #values are very different to website values, unsure why
-    #web_cap = [55011.2, 53138.72, 50577.59, 67257.95, 81971.83, 92663.58]
-    #assert capacity == web_cap, "Capacity does not equal website values."
 
-[GEN, YRS] = get_gen_data()
+#calling each of the functions and generating reserve_margin statistics
+[GEN, YRS] = get_gen_data(2035, 2045)
 CAP = get_cap_data(YRS)
 RSV_MRG = calc_margin(CAP, GEN, YRS)
 [MIN_T, MIN_MARG, MARG_MEAN] = calc_stats(RSV_MRG, YRS)
-yearly_plots(CAP, YRS)
