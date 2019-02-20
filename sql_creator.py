@@ -1,6 +1,5 @@
 import os
 from sqlalchemy import Column, Integer, String, MetaData, create_engine, Table, ForeignKey, Numeric, DateTime, UniqueConstraint
-from sqlalchemy.ext.declarative import declared_attr, declarative_base
 from . import CONFIG
 
 def create_test_table():
