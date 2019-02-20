@@ -22,10 +22,11 @@ def create_test_table():
         table=base_table(table_name, metadata)
         add_foreign_keys(table, metadata, foreign_keys=foreign_keys)
 
-    for table_name, (foreign_keys, columns) in {"opex"					:	[['source', 'technology_type'], {"fom": Numeric, "vom": Numeric}],
-                                                "build_limit"			:	[['isp_re_zone'], {'wind_high': Numeric, 'wind_medium':Numeric,'solar':Numeric, 'phes':Numeric}],
+    for table_name, (foreign_keys, columns) in {"opex"  :   [['source', 'technology_type'], {"fom": Numeric, "vom": Numeric}],
+                                                "build_limit"       :   [['isp_re_zone'], {'wind_high': Numeric, 'wind_medium':Numeric,'solar':Numeric, 'phes':Numeric}],
                                                 "transmission":	[['isp_re_zone','ntndp_zone'], {'transmission_limit':Numeric,'transmission_cost':Numeric}],
-                                                "isp_connection_costs": [['ntndp_zone', 'technology_type'], {"connection_cost":Numeric}]
+                                                "isp_connection_costs": [['ntndp_zone', 'technology_type'], {"connection_cost":Numeric}],
+                                                "heat_rates": [['capacity', 'source'], {'heat_rate': Numeric}]
                                                 }.items():
         table=base_table(table_name, metadata)
         add_foreign_keys(table, metadata, foreign_keys=foreign_keys)
@@ -56,7 +57,7 @@ def data_table(table_name, metadata):
 def add_foreign_keys(table, metadata, foreign_keys = ["region"]):
     for fk in foreign_keys:
         table.append_column(Column('{0}_id'.format(fk), Integer, ForeignKey("{0}.id".format(fk)), nullable=False))
-
+ 
 def add_columns(table, metadata, columns):
     for col, dtype in columns.items():
         table.append_column(Column(col, dtype, nullable=True))
