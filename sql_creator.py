@@ -25,8 +25,7 @@ def create_test_table():
     for table_name, (foreign_keys, columns) in {"opex"  :   [['source', 'technology_type'], {"fom": Numeric, "vom": Numeric}],
                                                 "build_limit"       :   [['isp_re_zone'], {'wind_high': Numeric, 'wind_medium':Numeric,'solar':Numeric, 'phes':Numeric}],
                                                 "transmission":	[['isp_re_zone','ntndp_zone'], {'transmission_limit':Numeric,'transmission_cost':Numeric}],
-                                                "isp_connection_costs": [['ntndp_zone', 'technology_type'], {"connection_cost":Numeric}],
-                                                "heat_rates": [['capacity', 'source'], {'heat_rate': Numeric}]
+                                                "isp_connection_costs": [['ntndp_zone', 'technology_type'], {"connection_cost":Numeric}]
                                                 }.items():
         table=base_table(table_name, metadata)
         add_foreign_keys(table, metadata, foreign_keys=foreign_keys)
@@ -37,7 +36,9 @@ def create_test_table():
                                                 "capacity": [['ntndp_zone', 'technology_type', 'region'], {'stationid': String(10), 'station_name': String(80), 'reg_cap': Numeric, 'retirement_year': Integer, 'commissioning_year': Integer}],
                                                 "fuel_price": [['capacity', 'fuel_scenario'], {'price':Numeric}],
                                                 "ntndp_capex": [['demand_scenario', 'technology_type','ntndp_zone'], {"capex": Numeric,"year": Integer}],
-                                                "isp_capex" : [['demand_scenario', 'technology_type'], {"capex": Numeric,"year": Integer}]}.items():
+                                                "isp_capex" : [['demand_scenario', 'technology_type'], {"capex": Numeric,"year": Integer}],
+                                                "heat_rates": [['capacity', 'source'], {'heat_rate': Numeric}]
+                                                }.items():
         table=data_table(table_name, metadata)
         add_foreign_keys(table, metadata, foreign_keys=foreign_keys)
         add_columns(table, metadata, columns)
