@@ -2,7 +2,7 @@ import os
 from sqlalchemy import Column, Integer, String, MetaData, create_engine, Table, ForeignKey, Numeric, DateTime, UniqueConstraint
 from . import CONFIG
 
-def create_test_table():
+def create_input_tables():
     path = os.path.join(CONFIG["local"]["data_path"], "test_db2.db")
     if os.path.exists(path):
         os.remove(path)
