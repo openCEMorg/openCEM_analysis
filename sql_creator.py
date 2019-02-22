@@ -2,12 +2,20 @@ import os
 from sqlalchemy import Column, Integer, String, MetaData, create_engine, Table, ForeignKey, Numeric, DateTime, UniqueConstraint
 from . import CONFIG
 
-def create_input_tables():
+def create_tables():
     path = os.path.join(CONFIG["local"]["data_path"], "test_db2.db")
     if os.path.exists(path):
         os.remove(path)
     engine = create_engine("sqlite:///{0}".format(path))
     metadata = MetaData()
+
+    create_input_tables(metadata)
+    create_output_tables(metadata)
+    metadata.create_all(engine)
+
+
+def create_input_tables(metadata):
+
 
     for table in[ "region", "connection_type","schedule_type", "resource_type", "source", "fuel_type", "wind_bubble", "isp_re_zone"]:
         base_table(table, metadata)
@@ -47,7 +55,20 @@ def create_input_tables():
         add_foreign_keys(table, foreign_keys=foreign_keys)
         add_columns(table, columns)
 
-    metadata.create_all(engine)
+def create_output_tables(metadata):
+    for table_name, (foreign_keys, columns) in {"generation"        :   [['ntndp_zone', 'technology_type'], {"timestamp": DateTime, "value":Numeric}],
+                                                "scheduled_load"    :   [['ntndp_zone', 'technology_type'], {"timestamp": DateTime, "value":Numeric}],
+                                                "storage_levels"    :   [['ntndp_zone', 'technology_type'], {"timestamp": DateTime, "value":Numeric}],
+                                                "energy_balance"    :   [['region'], {"timestamp": DateTime, "value":Numeric}],
+                                                "interconnector"    :   [['region', 'technology_type'], {"timestamp": DateTime, "value":Numeric}],
+                                                "new_capacity"      :   [['ntndp_zone', 'technology_type'], {"year": DateTime, "value":Numeric}],
+                                                "existing_capacity" :   [['ntndp_zone', 'technology_type'], {"value":Numeric}],
+                                                "exogenous_capacity":   [['ntndp_zone', 'technology_type'], {"value":Numeric}],
+                                                }.items():
+        table=data_table(table_name, metadata)
+        add_foreign_keys(table, foreign_keys=foreign_keys)
+        add_columns(table, columns)
+        add_unique_constraint(table, foreign_keys=foreign_keys, columns=columns)
 
 def base_table(table_name, metadata):
     return Table(table_name, metadata,
