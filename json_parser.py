@@ -22,7 +22,7 @@ class CemoJsonFile(object):
 
     def process_years(self):
         """Process each year of data contained in the JSON file"""
-        for year in self.meta['Years']:
+        for year in ["2020"]:#self.meta['Years']:
             year_data = YearData(year)
             year_data.load_data(self)
             year_data.process_vars()
@@ -82,7 +82,7 @@ VariableMap = namedtuple("VariableMap",
 VARIABLES = {
     "generation" : VariableMap(
         dataset_name="generation",
-        columns=['ntndp_zone_id', 'technology_type_id', 'timestable', 'value'],
+        columns=['ntndp_zone_id', 'technology_type_id', 'timestamp', 'value'],
         variable_list=["gen_disp", "stor_disp", "hyb_disp"]),
     "scheduled_load" : VariableMap(
         dataset_name="scheduled_load",
