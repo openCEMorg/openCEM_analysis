@@ -58,7 +58,7 @@ def create_input_tables(metadata):
 def create_output_tables(metadata):
     for table_name, (foreign_keys, columns) in {"generation"        :   [['ntndp_zone', 'technology_type'], {"timestamp": DateTime, "value":Numeric}],
                                                 "scheduled_load"    :   [['ntndp_zone', 'technology_type'], {"timestamp": DateTime, "value":Numeric}],
-                                                "storage_levels"    :   [['ntndp_zone', 'technology_type'], {"timestamp": DateTime, "value":Numeric}],
+                                                "storage_level"    :   [['ntndp_zone', 'technology_type'], {"timestamp": DateTime, "value":Numeric}],
                                                 "energy_balance"    :   [['region'], {"timestamp": DateTime, "value":Numeric}],
                                                 "interconnector"    :   [['region', 'technology_type'], {"timestamp": DateTime, "value":Numeric}],
                                                 "new_capacity"      :   [['ntndp_zone', 'technology_type'], {"year": DateTime, "value":Numeric}],
