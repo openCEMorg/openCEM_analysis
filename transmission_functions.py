@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from IO_functions import sql_reader, is_date
 from dateutil.parser import parse
 
-#defining global variables
 NOARG = None
 REGIONS = ['NSW', 'QLD', 'SA', 'TAS', 'VIC']
 
@@ -153,7 +152,7 @@ def get_trade_array(trans_data, region):
                 to_id = REGIONS.index(state)
                 from_id = REGIONS.index(region_i)
                 trade_array[from_id, to_id] = exports.value[index]
-    return
+    return trade_array
 
-TRANS, REG = get_trans_data("ALL", "2020-01-01", "2035-04-07")
-get_trade_array(TRANS, REG)
+#TRANS, REG = get_trans_data("ALL", "2020-01-01", "2035-04-07")
+#get_trade_array(TRANS, REG)

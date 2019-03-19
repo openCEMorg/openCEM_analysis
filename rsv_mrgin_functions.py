@@ -129,7 +129,9 @@ def value_test():
     assert min(reserve_margin) > 0, "Reserve margin has zero valued member."
 
 #calling each of the functions and generating reserve_margin statistics
-[GEN, YRS] = get_gen_data(2035, 2045)
-CAP = get_cap_data(YRS)
-RSV_MRG = calc_margin(CAP, GEN, YRS)
-[MIN_T, MIN_MARG, MARG_MEAN] = calc_stats(RSV_MRG, YRS)
+def rsv_main(year1, year2):
+    [GEN, YRS] = get_gen_data(year1, year2)
+    CAP = get_cap_data(YRS)
+    RSV_MRG = calc_margin(CAP, GEN, YRS)
+    [MIN_T, MIN_MARG, MARG_MEAN] = calc_stats(RSV_MRG, YRS)
+    return MIN_T, MIN_MARG
