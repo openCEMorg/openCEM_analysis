@@ -1,5 +1,6 @@
 """Functions for determination of the reserve margin from sqlite data."""
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from IO_functions import sql_reader
 
@@ -134,4 +135,6 @@ def rsv_main(year1, year2):
     CAP = get_cap_data(YRS)
     RSV_MRG = calc_margin(CAP, GEN, YRS)
     [MIN_T, MIN_MARG, MARG_MEAN] = calc_stats(RSV_MRG, YRS)
-    return MIN_T, MIN_MARG
+    RSV_INFO = {'min_t': MIN_T, 'min_marg': MIN_MARG, 'MARG_MEAN': MARG_MEAN}
+    RSV_INFO = pd.DataFrame(data=RSV_INFO)
+    return RSV_INFO
