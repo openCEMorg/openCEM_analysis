@@ -12,7 +12,6 @@ from os import path
 from datetime import timedelta
 from func import zone_to_region
 from dateutil.parser import parse
-from IO_functions import sql_reader, is_date
 from matplotlib.font_manager import FontProperties
 from const import *
 
@@ -41,26 +40,47 @@ class Date_Input():
 
 class Sql_File():
     def __init__(self):
+        conn = sqlite3.connect(db_name)
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        names = list(cursor.fetchall())
+        names = [i[0] for i in names]
+        self.tables = names
         self.get_cap()
         yrs = list(self.cap['year'].unique())
         self.yrs = yrs
+
     def get_trans(self):
-        conn = sqlite3.connect(db_name)
-        query = "select * from interconnector"
-        self.trans = pd.read_sql_query(query, conn)
+        if 'interconnector' in self.tables:
+            conn = sqlite3.connect(db_name)
+            query = "select * from interconnector"
+            self.trans = pd.read_sql_query(query, conn)
+        else:
+            self.trans = None
     def get_gen(self):
-        conn = sqlite3.connect(db_name)
-        query = "select * from generation"
-        self.gen = pd.read_sql_query(query, conn)
+        if 'generation' in self.tables:
+            conn = sqlite3.connect(db_name)
+            query = "select * from generation"
+            self.gen = pd.read_sql_query(query, conn)
+            #patch fix to solve double counting
+            self.gen['value'] = self.gen['value'].apply(lambda x: x/2)
+        else:
+            self.gen = None
     def get_stor(self):
-        conn = sqlite3.connect(db_name)
-        query = "select * from scheduled_load"
-        self.stor = pd.read_sql_query(query, conn)
-        self.stor = self.stor[self.stor['name']=='stor_charge']
+        if 'scheduled_load' in self.tables:
+            conn = sqlite3.connect(db_name)
+            query = "select * from scheduled_load"
+            self.stor = pd.read_sql_query(query, conn)
+            self.stor = self.stor[self.stor['name']=='stor_charge']
+        else:
+            self.stor = None
     def get_cap(self):
-        conn = sqlite3.connect(db_name)
-        query = "select * from existing_capacity"
-        self.cap = pd.read_sql_query(query, conn)
+        if 'existing_capacity' in self.tables and 'new_capacity' in self.tables:
+            conn = sqlite3.connect(db_name)
+            query = "select * from existing_capacity"
+            self.cap = pd.read_sql_query(query, conn)
+        else:
+            self.cap = None
     def load_all_data(self):
         #cap is not loaded since it already was in __init__
         self.get_stor()
@@ -81,7 +101,23 @@ class Sql_File():
         trans.index.names = ['  Exported <br> From  ', '  Imported <br> To  ']
         trans.columns.names = ['Simulated <br> Years']
         self.trade = trans
-
+    def analyse_margin(self):
+        min_mrg = [None]*len(self.yrs)
+        mean_mrg = [None]*len(self.yrs)
+        min_t = [None]*len(self.yrs)
+        for i, year in enumerate(self.yrs):
+            gen = self.gen[self.gen['year'] == year]
+            gen = gen.groupby(['timestable'], as_index=False).sum()
+            cap = self.cap[self.cap['year'] == year]
+            total_cap = cap['value'].sum()
+            rsv_mrg = gen
+            rsv_mrg['value'] = rsv_mrg['value'].apply(lambda x: 1-x/total_cap)
+            min_mrg[i] = min(rsv_mrg['value'])
+            mean_mrg[i] = rsv_mrg['value'].mean()
+            min_t[i] = rsv_mrg.loc[rsv_mrg['value'].idxmin]['timestable']
+        rsv_info = {'min_t': min_t, 'min_marg': min_mrg, 'MARG_MEAN': mean_mrg}
+        rsv_info = pd.DataFrame(data=rsv_info)
+        self.reserve = rsv_info
 class outputs_plotter():
     def tech_legend(self, frame):
         """ Takes tech id's included in df and generates list of those used to be\
@@ -120,15 +156,16 @@ class outputs_plotter():
     def plot_yearly_cap(self, data_class, region=None):
         cap = data_class.cap
         cap = cap[cap['value'] > 0]
-        cap['value'] = cap['value']/10**3 #conversion to GW
+        cap['value'] = cap['value'].apply(lambda x: x/(10**3)) #conversion to GW
         cap = cap.drop(['ntndp_zone_id','name'], axis=1)
-        cap.groupby(['technology_type_id', 'year'], as_index=False).sum()
+        cap = cap.groupby(['technology_type_id', 'year'], as_index=False).sum()
         cap = cap.pivot_table(index='year', columns='technology_type_id', values='value')
         reindexer = list(cap.columns)
         reindexer = [x for x in DISPLAY_ORDER if x in reindexer]
         cap = cap.reindex(reindexer, axis=1)
         gen = data_class.gen.groupby(['year', 'technology_type_id'], as_index=False).sum()
-        gen['value'] = gen['value']/10**6 #conversion to TWh
+        gen = gen[gen['value'] > 0]
+        gen['value'] = gen['value'].apply(lambda x: x/(10**6)) #conversion to TWh
         gen = gen.drop(['ntndp_zone_id'], axis=1)
         gen = gen.pivot_table(index='year', columns='technology_type_id', values='value')
         reindexer = list(gen.columns)
@@ -141,7 +178,6 @@ class outputs_plotter():
         ax1.set_xlabel('')
         ax1.get_legend().remove()
         ax1.set_title('Yearly Capacity')
-        self.tech_legend(gen)
         gen.plot(ax = ax2, kind='bar', stacked=True, color=self.tech_color)
         ax2.set_ylabel('Generation (TWh)')
         ax2.set_xlabel('')
