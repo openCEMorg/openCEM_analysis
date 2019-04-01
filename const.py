@@ -1,6 +1,8 @@
+""" Set of main constant variables required"""
 
-db_name = 'test3.db'
-palette = {1: (161 / 255, 135 / 255, 111 / 255, 1),  # biomass
+DB_NAME = 'test3.db'
+META_NAME = 'meta_scenario07.json'
+PALETTE = {1: (161 / 255, 135 / 255, 111 / 255, 1),  # biomass
            2: (251 / 255, 177 / 255, 98 / 255, 1),  # ccgt
            3: (251 / 255, 177 / 255, 98 / 255, 0.75),  # ccgt_sc
            4: (25 / 255, 25 / 255, 25 / 255, 1),  # coal_sc
@@ -20,13 +22,13 @@ palette = {1: (161 / 255, 135 / 255, 111 / 255, 1),  # biomass
            18: (75 / 255, 130 / 255, 178 / 255, 1),  # Hydro
            19: (241 / 255, 140 / 255, 31 / 255, 1),  # Gas thermal
            20: (0 / 255, 96 / 255, 1, 1),  # pumps
-           21: (243 / 255, 80 / 255, 32 / 255, 1),  # load (uses OpenNEM distillate colour)
+           21: (162 / 255, 47 / 255, 47 / 255, 1),  # load (uses OpenNEM distillate colour)
            22: (140 / 255, 140 / 255, 140 / 255, 1),  # Light gray other tech 1
            23: (145 / 255, 145 / 255, 145 / 255, 1),  # Light gray other tech 2
            24: (150 / 255, 150 / 255, 150 / 255, 1),  # Light gray other tech 3
            25: (160 / 255, 160 / 255, 160 / 255, 1),  # Light gray other tech 4
            }
-tech_names = {1:'Biomass',
+TECH_NAMES = {1:'Biomass',
               2:'CCGT',
               3:'CCGT CCS',
               4:'Coal SC',
@@ -48,7 +50,7 @@ tech_names = {1:'Biomass',
               20:'Pumps',
               21:'Load'
               }
-tech_w_load = {1:'Biomass',
+TECH_W_LOAD = {1:'Biomass',
                2:'CCGT',
                3:'CCGT CCS',
                4:'Coal SC',
@@ -70,8 +72,9 @@ tech_w_load = {1:'Biomass',
                20:'Pumps',
                21:'Load'
                }
-regions = ["NSW", "QLD", "SA", "TAS", "VIC"]
+REGIONS = ["NSW", "QLD", "SA", "TAS", "VIC"]
 
-DISPLAY_ORDER = [6, 7, 4, 5, 1, 16, 19, 2, 3, 8, 15, 18, 14, 12, 17, 13, 9, 10, 11, 20, 21, 22, 23, 24, 25]
+DISPLAY_ORDER = [6, 7, 4, 5, 1, 16, 19, 2, 3, 8, 15, 18, 14, 17, 12, 13, 9, 10, \
+                11, 20, 21, 22, 23, 24, 25]
 
-renewables = [1, 9, 10, 11, 12, 13, 14, 15, 17, 18]
+RENEWABLES = [1, 9, 10, 11, 12, 13, 14, 15, 17, 18]

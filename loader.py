@@ -1,5 +1,6 @@
 import os
 import math
+import json
 import imageio
 import sqlite3
 import numpy as np
@@ -40,35 +41,36 @@ class Date_Input():
 
 class Sql_File():
     def __init__(self):
-        conn = sqlite3.connect(db_name)
+        conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
         names = list(cursor.fetchall())
         names = [i[0] for i in names]
         self.tables = names
-        self.get_cap()
-        yrs = list(self.cap['year'].unique())
-        self.yrs = yrs
+        with open(META_NAME, 'r') as _file:
+            self.meta = json.load(_file)
+        self.yrs = self.meta['Years']
 
     def get_trans(self):
         if 'interconnector' in self.tables:
-            conn = sqlite3.connect(db_name)
+            conn = sqlite3.connect(DB_NAME)
             query = "select * from interconnector"
             self.trans = pd.read_sql_query(query, conn)
         else:
             self.trans = None
     def get_gen(self):
         if 'generation' in self.tables:
-            conn = sqlite3.connect(db_name)
-            query = "select * from generation"
+            conn = sqlite3.connect(DB_NAME)
+            #selecting distict to account for duplicate values
+            query = "select distinct * from generation"
             self.gen = pd.read_sql_query(query, conn)
             #patch fix to solve double counting
-            self.gen['value'] = self.gen['value'].apply(lambda x: x/2)
+            #self.gen['value'] = self.gen['value'].apply(lambda x: x/2)
         else:
             self.gen = None
     def get_stor(self):
         if 'scheduled_load' in self.tables:
-            conn = sqlite3.connect(db_name)
+            conn = sqlite3.connect(DB_NAME)
             query = "select * from scheduled_load"
             self.stor = pd.read_sql_query(query, conn)
             self.stor = self.stor[self.stor['name']=='stor_charge']
@@ -76,13 +78,13 @@ class Sql_File():
             self.stor = None
     def get_cap(self):
         if 'existing_capacity' in self.tables and 'new_capacity' in self.tables:
-            conn = sqlite3.connect(db_name)
+            conn = sqlite3.connect(DB_NAME)
             query = "select * from existing_capacity"
             self.cap = pd.read_sql_query(query, conn)
         else:
             self.cap = None
     def load_all_data(self):
-        #cap is not loaded since it already was in __init__
+        self.get_cap()
         self.get_stor()
         self.get_gen()
         self.get_trans()
@@ -118,6 +120,30 @@ class Sql_File():
         rsv_info = {'min_t': min_t, 'min_marg': min_mrg, 'MARG_MEAN': mean_mrg}
         rsv_info = pd.DataFrame(data=rsv_info)
         self.reserve = rsv_info
+
+    def analyse_meta(self):
+        dict_meta = {}
+        list_meta = {}
+        simple_meta = {}
+        for key, value in self.meta.items():
+            if isinstance(value, dict):
+                dict_meta[key] = value
+            elif isinstance(value, list):
+                list_meta[key] = value
+            elif value is None:
+                pass
+            else:
+                simple_meta[key] = value
+        list_meta = pd.DataFrame.from_dict(list_meta)
+        if type(self.yrs) is list:
+            list_meta.set_index('Years')
+            list_meta.index.name = ''
+        else:
+            pass
+        self.dict_meta = dict_meta
+        self.list_meta = list_meta
+        self.simple_meta = simple_meta
+
 class outputs_plotter():
     def tech_legend(self, frame):
         """ Takes tech id's included in df and generates list of those used to be\
@@ -127,12 +153,12 @@ class outputs_plotter():
         tech_id = [None]*len(used_tech)
         tech_color = [None]*len(used_tech)
         for j, tech_index in enumerate(used_tech):
-            tech_color[j] = palette[tech_index]
-            tech_id[j] = tech_names[tech_index]
+            tech_color[j] = PALETTE[tech_index]
+            tech_id[j] = TECH_NAMES[tech_index]
         handles = [None]*len(ordered_tech)
         ordered_tech.reverse()
         for j, tech in enumerate(ordered_tech):
-            handles[j] = mpatches.Patch(color=palette[tech], label=tech_names[tech])
+            handles[j] = mpatches.Patch(color=PALETTE[tech], label=TECH_NAMES[tech])
         self.handles = handles
         self.tech_id = tech_id
         self.tech_color = tech_color
@@ -206,7 +232,7 @@ class outputs_plotter():
         slice_dates.end_obj += timedelta(days=time_period)
         slice_dates.end = slice_dates.end_obj.strftime("%Y-%m-%d %H:%M:%S")
         generation_window = data_class.gen[(data_class.gen['timestable'] >= slice_dates.start) & (data_class.gen['timestable'] < slice_dates.end)]
-        if region in regions:
+        if region in REGIONS:
             state_cond = state_condition()
             generation_window['ntndp_zone_id'] = generation_window['ntndp_zone_id'].map(state_cond)
             generation_window = generation_window.loc[generation_window['ntndp_zone_id'] == region]
@@ -296,13 +322,13 @@ class outputs_animator():
         load = imports
         load['value'] = gen_no_tech['value']+imports['value']-exports['value']-stor_no_tech['value']
 
-        region_scaler = [None]*len(regions)
-        for num, region in enumerate(regions):
+        region_scaler = [None]*len(REGIONS)
+        for num, region in enumerate(REGIONS):
             region_scaler[num] = gen.loc[gen['state'] == region].sum().value
         region_scaler = [0.14*round((x**(1/4))/(max(region_scaler)**(1/4)),2) for x in region_scaler]
         region_positions = [[0.65, 0.45], [0.64, 0.63], [0.48, 0.48], [0.58, 0.16], [0.6, 0.3]]
-        pie_data = [None]*len(regions)*2
-        for num, region in enumerate(regions):
+        pie_data = [None]*len(REGIONS)*2
+        for num, region in enumerate(REGIONS):
             region_top = gen.loc[gen['state'] == region]
             region_top = region_top.drop("state", axis=1)
             region_top = region_top.set_index("technology_type_id")
@@ -353,7 +379,7 @@ class outputs_animator():
         big_tech.append(big_tech.pop(0))
         handles = [None]*len(big_tech)
         for j, tech in enumerate(big_tech):
-            handles[j] = mpatches.Patch(color=palette[tech], label=tech_w_load[tech])
+            handles[j] = mpatches.Patch(color=PALETTE[tech], label=TECH_W_LOAD[tech])
         self.handles = handles
 
     def map_plotter(self):
@@ -371,7 +397,7 @@ class outputs_animator():
         # -- NSW --
         # top pie
         techs = list(self.pie_data[0][0].index)
-        smallpalette = [palette[k] for k in techs]
+        smallpalette = [PALETTE[k] for k in techs]
         used_tech = techs
         values = list(self.pie_data[0][0]['value'])
         ax_pie = fig.add_axes([0.6-self.pie_data[0][2]/2, 0.37-self.pie_data[0][2]/2, self.pie_data[0][2], self.pie_data[0][2]], zorder=3)
@@ -380,7 +406,7 @@ class outputs_animator():
         ax_pie.patches[patch_counter-1].set_alpha(0)
         # bottom pie
         techs = list(self.pie_data[1][0].index)
-        smallpalette = [palette[k] for k in techs]
+        smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[1][0]['value'])
         ax_pie = fig.add_axes([0.6-self.pie_data[1][2]/2, 0.37-self.pie_data[1][2]/2, self.pie_data[1][2], self.pie_data[1][2]], zorder=3)
@@ -390,7 +416,7 @@ class outputs_animator():
         # -- QLD ==
         # top pie
         techs = list(self.pie_data[2][0].index)
-        smallpalette = [palette[k] for k in techs]
+        smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[2][0]['value'])
         ax_pie = fig.add_axes([0.59-self.pie_data[2][2]/2, 0.55-self.pie_data[2][2]/2, self.pie_data[2][2], self.pie_data[2][2]], zorder=3)
@@ -399,7 +425,7 @@ class outputs_animator():
         ax_pie.patches[patch_counter-1].set_alpha(0)
         # bottom pie
         techs = list(self.pie_data[3][0].index)
-        smallpalette = [palette[k] for k in techs]
+        smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[3][0]['value'])
         ax_pie = fig.add_axes([0.59-self.pie_data[3][2]/2, 0.55-self.pie_data[3][2]/2, self.pie_data[3][2], self.pie_data[3][2]], zorder=3)
@@ -409,7 +435,7 @@ class outputs_animator():
         # --SA --
         # top pie
         techs = list(self.pie_data[4][0].index)
-        smallpalette = [palette[k] for k in techs]
+        smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[4][0]['value'])
         ax_pie = fig.add_axes([0.43-self.pie_data[4][2]/2, 0.43-self.pie_data[4][2]/2, self.pie_data[4][2], self.pie_data[4][2]], zorder=3)
@@ -418,7 +444,7 @@ class outputs_animator():
         ax_pie.patches[patch_counter-1].set_alpha(0)
         # bottom pie
         techs = list(self.pie_data[5][0].index)
-        smallpalette = [palette[k] for k in techs]
+        smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[5][0]['value'])
         ax_pie = fig.add_axes([0.43-self.pie_data[5][2]/2, 0.43-self.pie_data[5][2]/2, self.pie_data[5][2], self.pie_data[5][2]], zorder=3)
@@ -428,7 +454,7 @@ class outputs_animator():
         # -- TAS ==
         # top pie
         techs = list(self.pie_data[6][0].index)
-        smallpalette = [palette[k] for k in techs]
+        smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[6][0]['value'])
         ax_pie = fig.add_axes([0.57-self.pie_data[6][2]/2, 0.13-self.pie_data[6][2]/2, self.pie_data[6][2], self.pie_data[6][2]], zorder=3)
@@ -437,7 +463,7 @@ class outputs_animator():
         ax_pie.patches[patch_counter-1].set_alpha(0)
         # bottom pie
         techs = list(self.pie_data[7][0].index)
-        smallpalette = [palette[k] for k in techs]
+        smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[7][0]['value'])
         ax_pie = fig.add_axes([0.57-self.pie_data[7][2]/2, 0.13-self.pie_data[7][2]/2, self.pie_data[7][2], self.pie_data[7][2]], zorder=3)
@@ -447,7 +473,7 @@ class outputs_animator():
         # -- VIC ==
         # top pie
         techs = list(self.pie_data[8][0].index)
-        smallpalette = [palette[k] for k in techs]
+        smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[8][0]['value'])
         ax_pie = fig.add_axes([0.55-self.pie_data[8][2]/2, 0.25-self.pie_data[8][2]/2, self.pie_data[8][2], self.pie_data[8][2]], zorder=3)
@@ -456,7 +482,7 @@ class outputs_animator():
         ax_pie.patches[patch_counter-1].set_alpha(0)
         # bottom pie
         techs = list(self.pie_data[9][0].index)
-        smallpalette = [palette[k] for k in techs]
+        smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[9][0]['value'])
         ax_pie = fig.add_axes([0.55-self.pie_data[9][2]/2, 0.25-self.pie_data[9][2]/2, self.pie_data[9][2], self.pie_data[9][2]], zorder=3)
