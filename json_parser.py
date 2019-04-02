@@ -17,12 +17,19 @@ class CemoJsonFile(object):
         self.filename = filename
         self.load_json()
         self.meta = self.json['meta']
+        self.dump_meta()
 
     def load_json(self):
         """loads json file (into attribute of class)"""
         json_filepath = os.path.join(CONFIG['local']['json_path'], self.filename)
         with open(json_filepath, "r") as _file:
             self.json = json.load(_file)
+
+    def dump_meta(self):
+        """ Dumps json metadata into its own json file."""
+        fname = os.path.join('cemo_outputs/', ('meta_'+self.filename))
+        with open(fname, 'w') as _file:
+            json.dump(self.meta, _file)
 
     def process_years(self):
         """Process each year of data contained in the JSON file"""
