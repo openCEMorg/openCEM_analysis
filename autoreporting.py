@@ -1,102 +1,116 @@
-import pandas as pd
 import os
-from jinja2 import FileSystemLoader, Environment
 from datetime import timedelta
+import pandas as pd
+from jinja2 import FileSystemLoader, Environment
 from dateutil.parser import parse
-from loader import *
 import seaborn as sns
-from const import REGIONS
+from Processing.loader import SqlFile, MetaData
+from Processing.plotting import OutputsPlotter
+from Processing.const import REGIONS
+from Processing.animating import OutputsAnimator
+from Json_Parsing import CONFIG
 
 # Configure Jinja and ready the loader
 ENV = Environment(
     loader=FileSystemLoader(searchpath="templates")
 )
 
-DATA = Sql_File()
+#load data from db file
+DATA = SqlFile()
 DATA.load_all_data()
 
 # Assemble the tamplates to be used
-base_template = ENV.get_template("report.html")
-rsv_section_template = ENV.get_template("rsv_section.html")
+BASE_TEMPLATE = ENV.get_template("report.html")
+RSV_SECTION_TEMPLATE = ENV.get_template("rsv_section.html")
 
-# Getting data to be published
-if (DATA.gen is None) or (DATA.cap is None):
-    rsv_table = 'Data required for reserve margin calculation was not within the \
+#creating reserve margin table
+if (DATA.data['gen'] is None) or (DATA.data['cap'] is None):
+    RSV_TABLE = 'Data required for reserve margin calculation was not within the \
                  model outputs file.'
 else:
     DATA.analyse_margin()
-    rsv_info = DATA.reserve
-    min_mrg = min(rsv_info['min_marg'])
-    min_t = list(rsv_info[rsv_info['min_marg']==min_mrg]['min_t'])[0]
-    min_mrg = round(min_mrg*100,2)
-    rsv_info.index = DATA.yrs
-    rsv_info.columns = ['Minimum Timestamp', 'Minimum <br> Reserve <br> Margin', \
+    RSV_INFO = DATA.data['reserve']
+    MIN_MRG = min(RSV_INFO['min_marg'])
+    MIN_T = list(RSV_INFO[RSV_INFO['min_marg'] == MIN_MRG]['min_t'])[0]
+    MIN_MRG = round(MIN_MRG*100, 2)
+    RSV_INFO.index = DATA.yrs
+    RSV_INFO.columns = ['Minimum Timestamp', 'Minimum <br> Reserve <br> Margin',
                         'Mean <br> Reserve <br> Margin']
 
 CM = sns.light_palette("orange", reverse=True, as_cmap=True)
-rsv_table = rsv_info.style\
-                  .set_precision(3) \
-                  .background_gradient(cmap=CM,
-                                       low=0.4,
-                                       high=0.8,
-                                       subset=['Mean <br> Reserve <br> Margin'])\
+RSV_TABLE = RSV_INFO.style\
+                    .set_precision(3) \
+                    .background_gradient(cmap=CM,
+                                         low=0.4,
+                                         high=0.8,
+                                         subset=['Mean <br> Reserve <br> Margin'])\
                   .background_gradient(cmap=CM,
                                        low=0.01,
                                        high=0.5,
                                        subset=['Minimum <br> Reserve <br> Margin'])
-rsv_table = rsv_table.render()
+RSV_TABLE = RSV_TABLE.render()
 
 #generating yearly plots
-
-plotter = outputs_plotter()
-if (DATA.gen is None) or (DATA.cap is None):
-    cap_plot = "The required data for the yearly capacity and generation plot\
+PLOTTER = OutputsPlotter()
+if (DATA.data['gen'] is None) or (DATA.data['cap'] is None):
+    CAP_PLOT = "The required data for the yearly capacity and generation plot\
                 was not within the model outputs file."
 else:
-    plotter.plot_yearly_cap(DATA)
-    cap_plot = '<img src="../Yearly_Capacity.png">'
+    PLOTTER.plot_yearly_cap(DATA)
+    CAP_PLOT = '<img src="Plots/Yearly_Capacity_' + CONFIG['local']['json_name'][:-5] + '.png">'
 
-if DATA.cap is None or DATA.gen is None:
-    gen_slice = "The required data for the generation plot was not within the \
+if DATA.data['cap'] is None or DATA.data['gen'] is None:
+    GEN_SLICE = "The required data for the generation plot was not within the \
                  model outputs file."
 else:
-    start_date = parse(min_t, fuzzy=True)-timedelta(days=3)
-    plotter.plot_generation_slice(DATA, start_date.strftime("%Y-%m-%d"), 7)
-    gen_slice = '<img src="../Generation_Over_Period.png">'
+    START_DATE = parse(MIN_T, fuzzy=True)-timedelta(days=3)
+    PLOTTER.plot_generation_slice(DATA, START_DATE.strftime("%Y-%m-%d"), 7)
+    GEN_SLICE = '<img src="Plots/Generation_Over_Period_' + \
+                CONFIG['local']['json_name'][:-5] + '.png">'
 
-#each animation needs to be generated based on this data, slowest part of process
-if DATA.trans is None or DATA.gen is None or DATA.stor is None:
-    animated_gif = "The required data for the animation was not within the \
-                    model outputs file."
-    # make the field empty
-else:
-    animator = outputs_animator()
-    animator.main(start_date.strftime("%Y-%m-%d"), 7)
-    animated_gif = "<img src='../Animation/animation.gif' height='600' width='800'>"
-
-#getting transmission data
-if DATA.trans is None:
-    trans_table = "Interconnector transmission data was not within the model \
+#creating transmission tables
+if DATA.data['trans'] is None:
+    TRANS_TABLE = "Interconnector transmission data was not within the model \
                    outputs file."
 else:
     DATA.analyse_trans()
-    trans_table = DATA.trade.style\
+    TRADE_DIRECTIONS = len(DATA.data['trade'].index)
+    TRANS_TABLE = DATA.data['trade'].style\
                       .set_caption(' Summary of one way transmission between  \
                                     regions in GWh for all simulated years.')\
-                      .set_precision(7) \
+                      .set_precision(5) \
                       .bar(color='#d65f5f')
-    trans_table = trans_table.render()
+    TRANS_TABLE = TRANS_TABLE.render()
+
+
+#generating animation
+#slowest part of the process
+#each timestamp as printed as per the Outputs_Animator class
+if DATA.data['trans'] is None or DATA.data['gen'] is None or DATA.data['stor'] is None:
+    ANIMATED_GIF = "The required data for the animation was not within the \
+                    model outputs file."
+elif TRADE_DIRECTIONS != 8:
+    ANIMATED_GIF = "Additional interconnectors have been added. Animation of \
+                    this will be included in a later feature."
+else:
+    ANIMATOR = OutputsAnimator()
+    #animating for 7 days around the min reserve margin
+    ANIMATOR.main(START_DATE.strftime("%Y-%m-%d"), 7)
+    ANIMATED_GIF = '<img src="Animation/animation_' + \
+                   CONFIG['local']['json_name'][:-5] + \
+                   '.gif" height="600" width="800">'
 
 #getting metadata for the title and description
-DATA.analyse_meta()
-TITLE = DATA.simple_meta.pop('Name')
-description = DATA.simple_meta.pop('Description')
-simple_meta_table = pd.DataFrame.from_dict(DATA.simple_meta, orient='index')
-simple_meta_table.columns = ['']
-simple_meta_table = simple_meta_table.style.render()
-list_meta_table = DATA.list_meta
-new_column_names = ['']*len(list_meta_table.columns)
-for i, ass_string in enumerate(list(list_meta_table.columns)):
+META = MetaData()
+META.analyse_meta()
+TITLE = META.simple_meta.pop('Name')
+DESCRIPTION = META.simple_meta.pop('Description')
+SIMPLE_META_TABLE = pd.DataFrame.from_dict(META.simple_meta, orient='index')
+SIMPLE_META_TABLE.columns = ['']
+SIMPLE_META_TABLE = SIMPLE_META_TABLE.style.render()
+LIST_META_TABLE = META.list_meta
+NEW_COLUMN_NAMES = ['']*len(LIST_META_TABLE.columns)
+for i, ass_string in enumerate(list(LIST_META_TABLE.columns)):
     break_counter = 1
     for j, char in enumerate(ass_string):
         if (char == ' ') and (j/break_counter >= 7):
@@ -104,34 +118,34 @@ for i, ass_string in enumerate(list(list_meta_table.columns)):
             break_counter = break_counter + 1
         else:
             pass
-        new_column_names[i] = new_column_names[i] + char
-list_meta_table.columns = new_column_names
-list_assumptions_table = list_meta_table.style.render()
-complex_names = ['Years', 'NEM wide RET as ratio', 'NEM wide RET as GWh', \
+        NEW_COLUMN_NAMES[i] = NEW_COLUMN_NAMES[i] + char
+LIST_META_TABLE.columns = NEW_COLUMN_NAMES
+LIST_ASSUMPTIONS_TABLE = LIST_META_TABLE.style.render()
+COMPLEX_NAMES = ['Years', 'NEM wide RET as ratio', 'NEM wide RET as GWh', \
                  'Regional based RET', 'System emission limit']
 
-if 'Regional based RET' in DATA.dict_meta:
-    regional_RET = pd.DataFrame.from_dict(DATA.dict_meta['Regional based RET'], orient = 'columns')
-    regional_RET.index = DATA.yrs
-    regional_RET.columns = [REGIONS[int(k)-1] for k in regional_RET.columns]
-    regional_RET_table = regional_RET.style.set_caption('Regional Based RET')
-    regional_RET_table = regional_RET_table.render()
+if 'Regional based RET' in META.dict_meta:
+    REGIONAL_RET = pd.DataFrame.from_dict(META.dict_meta['Regional based RET'], orient='columns')
+    REGIONAL_RET.index = DATA.yrs
+    REGIONAL_RET.columns = [REGIONS[int(k)-1] for k in REGIONAL_RET.columns]
+    REGIONAL_RET_TABLE = REGIONAL_RET.style.set_caption('Regional Based RET')
+    REGIONAL_RET_TABLE = REGIONAL_RET_TABLE.render()
 else:
-    regional_RET_table = "Regional based RET not included."
+    REGIONAL_RET_TABLE = "Regional based RET not included."
 
 # Content to be published
 SECTIONS = list()
-SECTIONS.append(rsv_section_template.render(
-    rsv_table=rsv_table,
-    min_rsv=min_mrg,
-    min_time=min_t,
-    animated_gif=animated_gif,
-    gen_slice=gen_slice,
-    cap_plot=cap_plot,
-    trans_pivot_table=trans_table,
-    simple_assumptions=simple_meta_table,
-    list_assumptions=list_assumptions_table,
-    regional_RET=regional_RET_table
+SECTIONS.append(RSV_SECTION_TEMPLATE.render(
+    rsv_table=RSV_TABLE,
+    min_rsv=MIN_MRG,
+    min_time=MIN_T,
+    animated_gif=ANIMATED_GIF,
+    gen_slice=GEN_SLICE,
+    cap_plot=CAP_PLOT,
+    trans_pivot_table=TRANS_TABLE,
+    simple_assumptions=SIMPLE_META_TABLE,
+    list_assumptions=LIST_ASSUMPTIONS_TABLE,
+    regional_RET=REGIONAL_RET_TABLE
 ))
 
 
@@ -143,11 +157,12 @@ def main():
     :return:
     """
     file_title = TITLE.replace(":", " ")
-    fname = os.path.join("outputs/", (file_title+'_report.html'))
+    fname = os.path.join(CONFIG['local']['json_path'], (file_title+'.html'))
+    print(fname)
     with open(fname, "w") as _file:
-        _file.write(base_template.render(
+        _file.write(BASE_TEMPLATE.render(
             title=TITLE,
-            description=description,
+            description=DESCRIPTION,
             sections=SECTIONS
         ))
 

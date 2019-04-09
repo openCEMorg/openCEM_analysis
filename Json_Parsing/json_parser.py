@@ -5,7 +5,7 @@ from collections import namedtuple
 
 import pandas as pd
 
-from cemo_outputs import CONFIG, ENGINE
+from Json_Parsing import CONFIG, ENGINE
 
 
 class CemoJsonFile(object):
@@ -27,7 +27,7 @@ class CemoJsonFile(object):
 
     def dump_meta(self):
         """ Dumps json metadata into its own json file."""
-        fname = os.path.join('cemo_outputs/', ('meta_'+self.filename))
+        fname = os.path.join(CONFIG['local']['json_path'], ('meta_'+self.filename))
         with open(fname, 'w') as _file:
             json.dump(self.meta, _file)
 
