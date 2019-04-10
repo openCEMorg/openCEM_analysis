@@ -7,8 +7,8 @@ import seaborn as sns
 from Processing.loader import SqlFile, MetaData
 from Processing.plotting import OutputsPlotter
 from Processing.const import REGIONS
+from json_sqlite import CONFIG
 from Processing.animating import OutputsAnimator
-from Json_Parsing import CONFIG
 
 # Configure Jinja and ready the loader
 ENV = Environment(

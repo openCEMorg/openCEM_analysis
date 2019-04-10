@@ -5,7 +5,7 @@ from matplotlib.font_manager import FontProperties
 import pandas as pd
 from Processing.loader import DateInput
 from Processing.const import PALETTE_2, DISPLAY_ORDER, TECH_NAMES, REGIONS
-from Json_Parsing import CONFIG
+from json_sqlite import CONFIG
 
 #ignoring mpl deprecation warning
 import warnings

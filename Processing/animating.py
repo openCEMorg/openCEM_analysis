@@ -5,9 +5,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import imageio
-from Json_Parsing import CONFIG
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
+import pandas as pd
+from dateutil.parser import parse
 
-from Processing.loader import SqlFile, DateInput
+from json_sqlite import CONFIG
 from Processing.func import zone_to_region
 from Processing.const import REGIONS, DISPLAY_ORDER, PALETTE, TECH_W_LOAD
 

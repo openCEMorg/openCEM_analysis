@@ -4,9 +4,8 @@ import sqlite3
 import numpy as np
 import pandas as pd
 from dateutil.parser import parse
-from Json_Parsing import CONFIG
 
-#disabling unnecessary warnings
+from json_sqlite import CONFIG
 pd.options.mode.chained_assignment = None  # default='warn'
 
 class DateInput():

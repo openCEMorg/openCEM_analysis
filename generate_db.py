@@ -1,8 +1,6 @@
 import sys
-from Json_Parsing import CONFIG, json_parser
 
-### First generate db file from json file ###
-#point to the directory holding the cemo_outputs folder
+from json_sqlite import CONFIG, json_parser
 JSON_PATH = CONFIG['local']['json_path']
 sys.path.append(JSON_PATH)
 JSON_NAME = CONFIG['local']['json_name']
