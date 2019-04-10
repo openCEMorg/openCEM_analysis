@@ -5,7 +5,7 @@ from collections import namedtuple
 
 import pandas as pd
 
-from Json_Parsing import CONFIG, ENGINE
+from json_sqlite import CONFIG, ENGINE
 
 
 class CemoJsonFile(object):

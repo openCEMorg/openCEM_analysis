@@ -3,7 +3,7 @@ import os
 import configparser
 from sqlalchemy import create_engine
 
-MODULE_DIR = os.path.dirname(__file__)
+MODULE_DIR = os.path.join(os.path.dirname(__file__),'..')
 
 CONFIG = configparser.RawConfigParser()
 CONFIG.read(os.path.join(MODULE_DIR, 'config.ini'))

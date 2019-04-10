@@ -6,4 +6,5 @@
 *pytest_cache*
 *.log
 *.gz
+*.ipynb*
 config.ini
