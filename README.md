@@ -104,7 +104,7 @@ plotter.plot_yearly_cap(model_data)
 ```
 
 
-![png](/README_Plots/output_8_0.png)
+![png](/docs/img/output_8_0.png)
 
 
 This plot can also be made specific to either the state or ntndp zone id. The state should be inputted as a string as one of 'QLD', 'NSW', 'SA', 'VIC' or 'TAS'. The ntndp zone id should be inputted as an integer between 1 and 16. For example:
@@ -115,7 +115,7 @@ plotter.plot_yearly_cap(model_data, 'SA')
 ```
 
 
-![png](/README_Plots/output_10_0.png)
+![png](/docs/img/output_10_0.png)
 
 
 Plotting of the generation slice also has the option to be made region specific, using the same method. This plot also requires a start date and number of days to specified as shown below:
@@ -131,7 +131,7 @@ plotter.plot_generation_slice(model_data, start_date, num_days)
 ```
 
 
-![png](/README_Plots/output_12_0.png)
+![png](/docs/img/output_12_0.png)
 
 
 And when specifying the region:
@@ -142,4 +142,4 @@ plotter.plot_generation_slice(model_data, start_date, num_days, 'NSW')
 ```
 
 
-![png](/README_Plots/output_14_0.png)
+![png](/docs/img/output_14_0.png)
