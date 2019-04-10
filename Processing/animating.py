@@ -186,11 +186,11 @@ class OutputsAnimator():
         smallpalette = [PALETTE[k] for k in techs]
         used_tech = techs
         values = list(self.pie_data[0][0]['value'])
-        ax_pie = fig.add_axes([0.6-self.pie_data[0][2]/2,
-                               0.37-self.pie_data[0][2]/2,
+        ax_pie = fig.add_axes([0.6 - self.pie_data[0][2] / 2,
+                               0.37 - self.pie_data[0][2] / 2,
                                self.pie_data[0][2],
                                self.pie_data[0][2]],
-                               zorder=3)
+                              zorder=3, aspect='equal')
         ax_pie.pie(values, counterclock=self.pie_data[0][5],
                    radius=self.pie_data[0][1], colors=smallpalette)
         patch_counter = len(self.pie_data[0][0])
@@ -200,11 +200,11 @@ class OutputsAnimator():
         smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[1][0]['value'])
-        ax_pie = fig.add_axes([0.6-self.pie_data[1][2]/2,
-                               0.37-self.pie_data[1][2]/2,
+        ax_pie = fig.add_axes([0.6 - self.pie_data[1][2] / 2,
+                               0.37 - self.pie_data[1][2] / 2,
                                self.pie_data[1][2],
                                self.pie_data[1][2]],
-                               zorder=3)
+                              zorder=3, aspect='equal')
         ax_pie.pie(values, counterclock=self.pie_data[1][5],
                    radius=self.pie_data[1][1], colors=smallpalette)
         patch_counter = patch_counter+len(self.pie_data[1][0])
@@ -215,11 +215,11 @@ class OutputsAnimator():
         smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[2][0]['value'])
-        ax_pie = fig.add_axes([0.59-self.pie_data[2][2]/2,
-                               0.55-self.pie_data[2][2]/2,
+        ax_pie = fig.add_axes([0.59 - self.pie_data[2][2] / 2,
+                               0.55 - self.pie_data[2][2] / 2,
                                self.pie_data[2][2],
                                self.pie_data[2][2]],
-                               zorder=3)
+                              zorder=3, aspect='equal')
         ax_pie.pie(values, counterclock=self.pie_data[2][5],
                    radius=self.pie_data[2][1], colors=smallpalette)
         patch_counter = len(self.pie_data[2][0])
@@ -229,11 +229,11 @@ class OutputsAnimator():
         smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[3][0]['value'])
-        ax_pie = fig.add_axes([0.59-self.pie_data[3][2]/2,
-                               0.55-self.pie_data[3][2]/2,
+        ax_pie = fig.add_axes([0.59 - self.pie_data[3][2] / 2,
+                               0.55 - self.pie_data[3][2] / 2,
                                self.pie_data[3][2],
                                self.pie_data[3][2]],
-                               zorder=3)
+                              zorder=3, aspect='equal')
         ax_pie.pie(values, counterclock=self.pie_data[3][5],
                    radius=self.pie_data[3][1], colors=smallpalette)
         patch_counter = patch_counter+len(self.pie_data[3][0])
@@ -244,11 +244,11 @@ class OutputsAnimator():
         smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[4][0]['value'])
-        ax_pie = fig.add_axes([0.43-self.pie_data[4][2]/2,
-                               0.43-self.pie_data[4][2]/2,
+        ax_pie = fig.add_axes([0.43 - self.pie_data[4][2] / 2,
+                               0.43 - self.pie_data[4][2] / 2,
                                self.pie_data[4][2],
                                self.pie_data[4][2]],
-                               zorder=3)
+                              zorder=3, aspect='equal')
         ax_pie.pie(values, counterclock=self.pie_data[4][5],
                    radius=self.pie_data[4][1], colors=smallpalette)
         patch_counter = len(self.pie_data[4][0])
@@ -258,11 +258,11 @@ class OutputsAnimator():
         smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[5][0]['value'])
-        ax_pie = fig.add_axes([0.43-self.pie_data[5][2]/2,
-                               0.43-self.pie_data[5][2]/2,
+        ax_pie = fig.add_axes([0.43 - self.pie_data[5][2] / 2,
+                               0.43 - self.pie_data[5][2] / 2,
                                self.pie_data[5][2],
                                self.pie_data[5][2]],
-                               zorder=3)
+                              zorder=3, aspect='equal')
         ax_pie.pie(values, counterclock=self.pie_data[5][5],
                    radius=self.pie_data[5][1], colors=smallpalette)
         patch_counter = patch_counter+len(self.pie_data[5][0])
@@ -273,11 +273,11 @@ class OutputsAnimator():
         smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[6][0]['value'])
-        ax_pie = fig.add_axes([0.57-self.pie_data[6][2]/2,
-                               0.13-self.pie_data[6][2]/2,
+        ax_pie = fig.add_axes([0.57 - self.pie_data[6][2] / 2,
+                               0.13 - self.pie_data[6][2] / 2,
                                self.pie_data[6][2],
                                self.pie_data[6][2]],
-                               zorder=3)
+                              zorder=3, aspect='equal')
         ax_pie.pie(values, counterclock=self.pie_data[6][5],
                    radius=self.pie_data[6][1], colors=smallpalette)
         patch_counter = len(self.pie_data[6][0])
@@ -287,11 +287,11 @@ class OutputsAnimator():
         smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[7][0]['value'])
-        ax_pie = fig.add_axes([0.57-self.pie_data[7][2]/2,
-                               0.13-self.pie_data[7][2]/2,
+        ax_pie = fig.add_axes([0.57 - self.pie_data[7][2] / 2,
+                               0.13 - self.pie_data[7][2] / 2,
                                self.pie_data[7][2],
                                self.pie_data[7][2]],
-                               zorder=3)
+                              zorder=3, aspect='equal')
         ax_pie.pie(values, counterclock=self.pie_data[7][5],
                    radius=self.pie_data[7][1], colors=smallpalette)
         patch_counter = patch_counter+len(self.pie_data[7][0])
@@ -302,11 +302,11 @@ class OutputsAnimator():
         smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[8][0]['value'])
-        ax_pie = fig.add_axes([0.55-self.pie_data[8][2]/2,
-                               0.25-self.pie_data[8][2]/2,
+        ax_pie = fig.add_axes([0.55 - self.pie_data[8][2] / 2,
+                               0.25 - self.pie_data[8][2] / 2,
                                self.pie_data[8][2],
                                self.pie_data[8][2]],
-                               zorder=3)
+                              zorder=3, aspect='equal')
         ax_pie.pie(values, counterclock=self.pie_data[8][5],
                    radius=self.pie_data[8][1], colors=smallpalette)
         patch_counter = len(self.pie_data[8][0])
@@ -316,11 +316,11 @@ class OutputsAnimator():
         smallpalette = [PALETTE[k] for k in techs]
         used_tech = list(set(used_tech+techs))
         values = list(self.pie_data[9][0]['value'])
-        ax_pie = fig.add_axes([0.55-self.pie_data[9][2]/2,
-                               0.25-self.pie_data[9][2]/2,
+        ax_pie = fig.add_axes([0.55 - self.pie_data[9][2] / 2,
+                               0.25 - self.pie_data[9][2] / 2,
                                self.pie_data[9][2],
                                self.pie_data[9][2]],
-                               zorder=3)
+                              zorder=3, aspect='equal')
         ax_pie.pie(values, counterclock=self.pie_data[9][5],
                    radius=self.pie_data[9][1], colors=smallpalette)
         patch_counter = patch_counter+len(self.pie_data[9][0])
@@ -353,10 +353,10 @@ class OutputsAnimator():
                 ax.arrow(arr_start[i][0], arr_start[i][1], arr_disp[i][0],
                          arr_disp[i][1], linewidth=0.3, head_length=0.01,
                          head_width=0.01, zorder=5)
-        #plotting the pie chart legend in the top right
-        ax_pie_legend = fig.add_axes([0.75, 0.6, 0.15, 0.15], zorder=3)
-        ax_pie_legend.pie([1, 1], colors=[(46/255, 49/255, 49/255, 1),
-                                          (171/255, 183/255, 183/255, 1)])
+        # plotting the pie chart legend in the top right
+        ax_pie_legend = fig.add_axes([0.75, 0.6, 0.15, 0.15], zorder=3, aspect='equal')
+        ax_pie_legend.pie([1, 1], colors=[(46 / 255, 49 / 255, 49 / 255, 1),
+                                          (171 / 255, 183 / 255, 183 / 255, 1)])
         ax_pie_legend.set_title('Producers', fontsize=8)
         ax_pie_legend.set_xlabel('Consumers', fontsize=8)
         ax_pie_legend.legend(bbox_to_anchor=(-0.25, -0.4),
