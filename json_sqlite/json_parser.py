@@ -133,4 +133,4 @@ VARIABLES = {
 # need to check - gen_cap_op = existing?
 # exogenous capacity?
 # interconnector columns?
-#"unserved", "surplus" columns?
+# "unserved", "surplus" columns?
