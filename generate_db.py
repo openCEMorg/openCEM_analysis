@@ -1,4 +1,12 @@
 '''Generate sqlite3 file from json file for faster processing of data'''
+__version__ = "0.9"
+__author__ = "Jacob Buddee"
+__copyright__ = "Copyright 2019, ITP Renewables, Australia"
+__credits__ = ["Jacob Buddee", "Dylan McConnell", "José Zapata"]
+__license__ = "GPLv3"
+__maintainer__ = "José Zapata"
+__email__ = "jose.zapata@itpau.com.au"
+__status__ = "Development"
 
 import sys
 

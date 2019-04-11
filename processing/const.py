@@ -1,4 +1,12 @@
 """ Set of main constant variables required"""
+__version__ = "0.9"
+__author__ = "Jacob Buddee"
+__copyright__ = "Copyright 2019, ITP Renewables, Australia"
+__credits__ = ["Jacob Buddee", "Dylan McConnell", "José Zapata"]
+__license__ = "GPLv3"
+__maintainer__ = "José Zapata"
+__email__ = "jose.zapata@itpau.com.au"
+__status__ = "Development"
 
 PALETTE = {1: (161 / 255, 135 / 255, 111 / 255, 1),  # biomass
            2: (251 / 255, 177 / 255, 98 / 255, 1),  # ccgt

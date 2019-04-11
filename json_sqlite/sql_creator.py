@@ -1,3 +1,13 @@
+'''Module to create sqlite3 database'''
+__version__ = "0.9"
+__author__ =  "Dylan McConnell"
+__copyright__ = "Copyright 2019, ITP Renewables, Australia"
+__credits__ = [ "Dylan McConnell","Jacob Buddee","José Zapata"]
+__license__ = "GPLv3"
+__maintainer__ = "José Zapata"
+__email__ = "jose.zapata@itpau.com.au"
+__status__ = "Development"
+
 import os
 from sqlalchemy import Column, Integer, String, MetaData, create_engine, Table, ForeignKey, Numeric, DateTime
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
@@ -29,7 +39,7 @@ def create_test_table():
         add_columns(table, metadata, columns)
 
     for table_name, (foreign_keys, columns) in {"wind_and_solar_traces"		:	[['technology_type', 'source', 'ntndp_zone','wind_bubble', 'isp_re_zone'], {"mw":Numeric, "timestamp": DateTime}],
-                                                "demand_and_rooftop_traces"	:	[['region', 'demand_scenario'],{"poe10": Numeric, 'rooftop_solar': Numeric, "timestamp": DateTime}], 
+                                                "demand_and_rooftop_traces"	:	[['region', 'demand_scenario'],{"poe10": Numeric, 'rooftop_solar': Numeric, "timestamp": DateTime}],
                                                 "capex": [['demand_scenario', 'technology_type','ntndp_zone'], {"capex": Numeric,"year":Integer}]}.items():
         table=data_table(table_name, metadata)
         add_foreign_keys(table, metadata, foreign_keys=foreign_keys)
