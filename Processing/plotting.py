@@ -1,15 +1,19 @@
-from datetime import timedelta
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from matplotlib.font_manager import FontProperties
-import pandas as pd
-from Processing.loader import DateInput
-from Processing.const import PALETTE_2, DISPLAY_ORDER, TECH_NAMES, REGIONS
-from json_sqlite import CONFIG
-
-#ignoring mpl deprecation warning
+# ignoring mpl deprecation warning
+import os
 import warnings
+from datetime import timedelta
+
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
+import pandas as pd
+from matplotlib.font_manager import FontProperties
+
+from json_sqlite import CONFIG
+from Processing.const import DISPLAY_ORDER, PALETTE_2, REGIONS, TECH_NAMES
+from Processing.loader import DateInput
+
 warnings.filterwarnings('ignore')
+
 
 def state_condition():
     """ Creates a condition which allows for zone values to be mapped to \
@@ -27,8 +31,10 @@ def state_condition():
     state_cond = {**d_qld, **d_nsw, **d_vic, **d_sa, **d_tas}
     return state_cond
 
+
 class OutputsPlotter():
     """ Makes generation and capacity plots for model outputs."""
+
     def __init__(self):
         self.handles = []
         self.tech_id = []
@@ -39,12 +45,12 @@ class OutputsPlotter():
         included in plot legend."""
         used_tech = frame.columns.values
         ordered_tech = [x for x in DISPLAY_ORDER if x in used_tech]
-        tech_id = [None]*len(used_tech)
-        tech_color = [None]*len(used_tech)
+        tech_id = [None] * len(used_tech)
+        tech_color = [None] * len(used_tech)
         for j, tech_index in enumerate(used_tech):
             tech_color[j] = PALETTE_2[tech_index]
             tech_id[j] = TECH_NAMES[tech_index]
-        handles = [None]*len(ordered_tech)
+        handles = [None] * len(ordered_tech)
         ordered_tech.reverse()
         for j, tech in enumerate(ordered_tech):
             handles[j] = mpatches.Patch(color=PALETTE_2[tech], label=TECH_NAMES[tech])
@@ -69,7 +75,7 @@ class OutputsPlotter():
             not been inputted. Region must be a string containing one of the \
             eastern states or an integer between 1 and 16 to specifiy the \
             ntndp_zone_id. A day offset must be inputted")
-        cap['value'] = cap['value'].apply(lambda x: x/(10**3)) #conversion to GW
+        cap['value'] = cap['value'].apply(lambda x: x / (10**3))  # conversion to GW
         cap = cap.drop(['ntndp_zone_id', 'name'], axis=1)
         cap = cap.groupby(['technology_type_id', 'year'], as_index=False).sum()
         cap = cap.pivot_table(index='year', columns='technology_type_id', values='value')
@@ -85,7 +91,7 @@ class OutputsPlotter():
         else:
             gen = gen.drop(['ntndp_zone_id'], axis=1)
         gen = gen.groupby(['year', 'technology_type_id'], as_index=False).sum()
-        gen['value'] = gen['value'].apply(lambda x: x/(10**6)) #conversion to TWh
+        gen['value'] = gen['value'].apply(lambda x: x / (10**6))  # conversion to TWh
         gen = gen.pivot_table(index='year',
                               columns='technology_type_id',
                               values='value')
@@ -110,10 +116,7 @@ class OutputsPlotter():
                    bbox_to_anchor=(1.4, 1),
                    fancybox=False,
                    shadow=False)
-        fname = CONFIG['local']['json_path'] + \
-            '\\Plots\\Yearly_Capacity_' + \
-            CONFIG['local']['json_name'][:-5] + \
-            '.png'
+        fname = os.path.join(CONFIG['local']['save_dir'], 'Yearly_Capacity') + '.png'
         plt.savefig(fname, quality=80)
 
     def plot_generation_slice(self, data_class, start_date, time_period, region=None):
@@ -145,7 +148,7 @@ class OutputsPlotter():
             not been inputted. Region must be a string containing one of the \
             eastern states or an integer between 1 and 16. A day offset must \
             be inputted")
-        #cleaning up data to remove useless values, merge data and remove zeroes
+        # cleaning up data to remove useless values, merge data and remove zeroes
         generation_window = generation_window.drop(["ntndp_zone_id", "year"], axis=1)
         generation_window = generation_window.groupby(
             ["timestable", "technology_type_id"], as_index=False).sum()
@@ -159,21 +162,18 @@ class OutputsPlotter():
         generation_window = generation_window.fillna(0)
         generation_window.index = pd.to_datetime(generation_window.index)
         self.tech_legend(generation_window)
-        font_prop = FontProperties() #small font to fit legend
+        font_prop = FontProperties()  # small font to fit legend
         font_prop.set_size('small')
         generation_window.plot.area(color=self.tech_color, figsize=[15, 4.8])
         sub_ax = plt.subplot(111)
         plt.ylabel('Generation (MW)')
         plt.xlabel('Timestamp')
-        #putting legend outside plot area
+        # putting legend outside plot area
         sub_ax.legend(handles=self.handles,
                       bbox_to_anchor=(1.02, 1),
                       ncol=1, fancybox=True,
                       shadow=True,
                       prop=font_prop)
-        plt.gcf().subplots_adjust(right=0.85) #0.7 works
-        fname = CONFIG['local']['json_path'] + \
-                '\\Plots\\Generation_Over_Period_' + \
-                CONFIG['local']['json_name'][:-5] + \
-                '.png'
+        plt.gcf().subplots_adjust(right=0.85)  # 0.7 works
+        fname = os.path.join(CONFIG['local']['save_dir'], 'Generation_Over_Period') + '.png'
         plt.savefig(fname, quality=80)
