@@ -9,8 +9,8 @@ import pandas as pd
 from matplotlib.font_manager import FontProperties
 
 from json_sqlite import CONFIG
-from Processing.const import DISPLAY_ORDER, PALETTE_2, REGIONS, TECH_NAMES
-from Processing.loader import DateInput
+from processing.const import DISPLAY_ORDER, PALETTE_2, REGIONS, TECH_NAMES
+from processing.loader import DateInput
 
 warnings.filterwarnings('ignore')
 

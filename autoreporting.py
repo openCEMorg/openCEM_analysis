@@ -9,10 +9,10 @@ from dateutil.parser import parse
 from jinja2 import Environment, FileSystemLoader
 
 from json_sqlite import CONFIG
-from Processing.animating import OutputsAnimator
-from Processing.const import REGIONS
-from Processing.loader import MetaData, SqlFile
-from Processing.plotting import OutputsPlotter
+from processing.animating import OutputsAnimator
+from processing.const import REGIONS
+from processing.loader import MetaData, SqlFile
+from processing.plotting import OutputsPlotter
 
 
 def report_template():

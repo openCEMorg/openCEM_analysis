@@ -11,9 +11,9 @@ import pandas as pd
 from dateutil.parser import parse
 
 from json_sqlite import CONFIG
-from Processing.const import DISPLAY_ORDER, PALETTE, REGIONS, TECH_W_LOAD
-from Processing.func import zone_to_region
-from Processing.loader import DateInput, SqlFile
+from processing.const import DISPLAY_ORDER, PALETTE, REGIONS, TECH_W_LOAD
+from processing.func import zone_to_region
+from processing.loader import DateInput, SqlFile
 
 warnings.filterwarnings('ignore')
 
