@@ -23,7 +23,6 @@ class CemoJsonFile(object):
     def process_years(self):
         """Process each year of data contained in the JSON file"""
         for year in ["2030", "2035", "2045"]:#self.meta['Years']:
-            print (year)
             year_data = YearData(year)
             year_data.load_data(self)
             year_data.process_vars()
