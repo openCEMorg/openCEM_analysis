@@ -3,7 +3,7 @@ import os
 from collections import namedtuple
 import json
 import pandas as pd
-from cemo_outputs import CONFIG, ENGINE
+from cemo_outputs import CONFIG, ENGINE, MYSQL_INSERT
 
 class CemoJsonFile(object):
     """CEMO JSON File class
@@ -22,7 +22,8 @@ class CemoJsonFile(object):
 
     def process_years(self):
         """Process each year of data contained in the JSON file"""
-        for year in ["2020"]:#self.meta['Years']:
+        for year in ["2030", "2035", "2045"]:#self.meta['Years']:
+            print (year)
             year_data = YearData(year)
             year_data.load_data(self)
             year_data.process_vars()
@@ -40,7 +41,7 @@ class YearData(object):
 
     def process_vars(self):
         """Method to process each variable dataset contained in VARIABLES """
-        for _, variable_map, in VARIABLES.items():
+        for v, variable_map, in VARIABLES.items():
             dataset = VariableDataset(variable_map)
             dataset.parse_all(self)
             dataset.insert_dataset()
@@ -66,7 +67,7 @@ class VariableDataset(object):
         series_list = [self.parse_var(yeardata, var) for var in self.variable_map.variable_list]
         self.dataframe = pd.concat(series_list)
 
-    def insert_dataset(self, engine=ENGINE):
+    def insert_dataset(self, engine=MYSQL_INSERT):
         """Method in insert parsed and concatenated data into SQL db with ENGINE"""
         self.dataframe.to_sql(self.variable_map.dataset_name,
                               con=engine,
@@ -92,10 +93,6 @@ VARIABLES = {
         dataset_name="storage_level",
         columns=['ntndp_zone_id', 'technology_type_id', 'timestamp', 'value'],
         variable_list=["stor_level", "hyb_level"]),
-    "energy_balance" : VariableMap(
-        dataset_name="energy_balance",
-        columns=['region_id', 'timestamp', 'value'],
-        variable_list=["unserved", "surplus"]),
     "interconnector" : VariableMap(
         dataset_name="interconnector",
         columns=['region_id', 'technology_type_id', 'timestamp', 'value'],
@@ -104,17 +101,24 @@ VARIABLES = {
         dataset_name="new_capacity",
         columns=['ntndp_zone_id', 'technology_type_id', 'value'],
         variable_list=["gen_cap_new", "stor_cap_new", "hyb_cap_new"]),
-    "existing_capacity" : VariableMap(
-        dataset_name="existing_capacity",
-        columns=['ntndp_zone_id', 'technology_type_id', 'value'],
-        variable_list=["gen_cap_op", "stor_cap_op", "hyb_cap_op"]),
-    "exogenous_capacity" : VariableMap(
-        dataset_name="exogenous_capacity",
-        columns=['ntndp_zone_id', 'technology_type_id', 'value'],
-        variable_list=["gen_cap_ret", "gen_cap_ret_neg"])
-    }
+}
 
 #need to check - gen_cap_op = existing?
 # exogenous capacity?
 #interconnector columns?
 #"unserved", "surplus" columns?
+
+#    "energy_balance" : VariableMap(
+#        dataset_name="energy_balance",
+#        columns=['region_id', 'timestamp', 'value'],
+#        variable_list=["unserved", "surplus"]),
+
+#    "exogenous_capacity" : VariableMap(
+#        dataset_name="exogenous_capacity",
+#        columns=['ntndp_zone_id', 'technology_type_id', 'value'],
+#        variable_list=["gen_cap_ret", "gen_cap_ret_neg"])
+
+#    "existing_capacity" : VariableMap(
+#        dataset_name="existing_capacity",
+#        columns=['ntndp_zone_id', 'technology_type_id', 'value'],
+#        variable_list=["gen_cap_op", "stor_cap_op", "hyb_cap_op"])
