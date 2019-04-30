@@ -1,6 +1,6 @@
 import os
 from sqlalchemy import Column, Integer, String, MetaData, create_engine, Table, ForeignKey, Numeric, DateTime, UniqueConstraint
-from . import CONFIG
+from . import CONFIG, MYSQL_CREATE
 
 def create_tables():
     path = os.path.join(CONFIG["local"]["data_path"], "test_db2.db")
@@ -13,6 +13,10 @@ def create_tables():
     create_output_tables(metadata)
     metadata.create_all(engine)
 
+def output_tables():
+    metadata = MetaData(bind=MYSQL_CREATE, reflect=True)
+    create_output_tables(metadata)
+    metadata.create_all(MYSQL_CREATE)
 
 def create_input_tables(metadata):
 
