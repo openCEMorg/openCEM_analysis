@@ -48,8 +48,8 @@ class OutputsAnimator():
         self.dates = DateInput(start_date, end_date)
         # cleaning generation data
         gen = self.sqldata.data['gen']
-        gen = gen.loc[(gen['timestable'] == self.dates.start)]
-        gen = gen.rename(columns={'timestable': 'timestamp'})
+        gen = gen.loc[(gen['timestamp'] == self.dates.start)]
+        gen = gen.rename(columns={'timestamp': 'timestamp'})
         gen = gen.drop(['year'], axis=1)
         gen = zone_to_region(gen)
         gen_no_tech = gen.groupby(["state"], as_index=False).sum()
@@ -162,9 +162,9 @@ class OutputsAnimator():
     def get_legend(self, start_date, end_date):
         """ Generates legend handles for the entire figure. """
         gen_data = self.sqldata.data['gen']
-        gen_data = gen_data[(gen_data['timestable'] >= start_date)
-                            & (gen_data['timestable'] < end_date)]
-        gen_data = gen_data.rename(columns={'timestable': 'timestamp'})
+        gen_data = gen_data[(gen_data['timestamp'] >= start_date)
+                            & (gen_data['timestamp'] < end_date)]
+        gen_data = gen_data.rename(columns={'timestamp': 'timestamp'})
         stor_data = self.sqldata.data['stor']
         stor_data = stor_data[(stor_data['timestamp'] >= start_date)
                               & (stor_data['timestamp'] < end_date)]

@@ -106,7 +106,7 @@ VariableMap = namedtuple("VariableMap",
 VARIABLES = {
     "generation": VariableMap(
         dataset_name="generation",
-        columns=['ntndp_zone_id', 'technology_type_id', 'timestable', 'value', 'name', 'year'],
+        columns=['ntndp_zone_id', 'technology_type_id', 'timestamp', 'value', 'name', 'year'],
         variable_list=["gen_disp", "stor_disp", "hyb_disp"]),
     "scheduled_load": VariableMap(
         dataset_name="scheduled_load",

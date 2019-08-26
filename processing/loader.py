@@ -187,15 +187,16 @@ class SqlFile():
         for i, year in enumerate(self.yrs):
             gen = self.data['gen']
             gen = gen[gen['year'] == year]
-            gen = gen.groupby(['timestable'], as_index=False).sum()
+            gen = gen.groupby(['timestamp'], as_index=False).sum()
             cap = self.data['cap']
             cap = cap[cap['year'] == year]
             total_cap = cap['value'].sum()
             rsv_mrg = gen
-            rsv_mrg['value'] = rsv_mrg['value'].apply(lambda x: 1 - x / total_cap)
+            rsv_mrg['value'] = rsv_mrg['value'].apply(
+                lambda x: 1 - x / total_cap)
             min_mrg[i] = min(rsv_mrg['value'])
             mean_mrg[i] = rsv_mrg['value'].mean()
-            min_t[i] = rsv_mrg.loc[rsv_mrg['value'].idxmin]['timestable']
+            min_t[i] = rsv_mrg.loc[rsv_mrg['value'].idxmin]['timestamp']
         rsv_info = {'min_t': min_t, 'min_marg': min_mrg, 'MARG_MEAN': mean_mrg}
         rsv_info = pd.DataFrame(data=rsv_info)
         self.data['reserve'] = rsv_info
