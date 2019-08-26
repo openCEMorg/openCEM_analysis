@@ -23,6 +23,18 @@ from processing.loader import MetaData, SqlFile
 from processing.plotting import OutputsPlotter
 
 
+def hover(hover_color="#ffff99"):
+    return dict(selector="tr:hover",
+                props=[("background-color", "%s" % hover_color)])
+
+
+styles = [
+    hover(),
+    dict(selector="th", props=[("font-size", "100%"),
+                               ("text-align", "center")])
+]
+
+
 def report_template():
     '''Define standard openCEM report template'''
     # Configure Jinja and ready the loader
@@ -91,9 +103,10 @@ def report_template():
         TRADE_DIRECTIONS = len(DATA.data['trade'].index)
         TRANS_TABLE = DATA.data['trade'].style\
                           .set_caption(' Summary of one way transmission between  \
-                                        regions in GWh for all simulated years.')\
+                                        zones in GWh for all simulated years.')\
                           .set_precision(5) \
-                          .bar(color='#d65f5f')
+                          .bar(color='#d65f5f')\
+                          .set_table_styles(styles)
         TRANS_TABLE = TRANS_TABLE.render()
 
     # generating animation

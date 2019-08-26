@@ -142,8 +142,8 @@ class OutputsPlotter():
         slice_dates.end = slice_dates.end_obj.strftime("%Y-%m-%d %H:%M:%S")
         gen = data_class.data['gen']
         generation_window = gen[
-            (gen['timestable'] >= slice_dates.start)
-            & (gen['timestable'] < slice_dates.end)]
+            (gen['timestamp'] >= slice_dates.start)
+            & (gen['timestamp'] < slice_dates.end)]
         if region in REGIONS:
             state_cond = state_condition()
             generation_window['ntndp_zone_id'] = generation_window['ntndp_zone_id'].map(state_cond)
@@ -160,9 +160,9 @@ class OutputsPlotter():
         # cleaning up data to remove useless values, merge data and remove zeroes
         generation_window = generation_window.drop(["ntndp_zone_id", "year"], axis=1)
         generation_window = generation_window.groupby(
-            ["timestable", "technology_type_id"], as_index=False).sum()
+            ["timestamp", "technology_type_id"], as_index=False).sum()
         generation_window = generation_window.loc[generation_window['value'] > 0]
-        generation_window = generation_window.pivot_table(index='timestable',
+        generation_window = generation_window.pivot_table(index='timestamp',
                                                           columns='technology_type_id',
                                                           values='value')
         reindexer = list(generation_window.columns)
