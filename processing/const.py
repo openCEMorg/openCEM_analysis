@@ -105,6 +105,25 @@ TECH_W_LOAD = {1:'Biomass',
                21:'Load'
                }
 REGIONS = ["NSW", "QLD", "SA", "TAS", "VIC"]
+REGION = {1: 'NSW', 2: 'QLD', 3: 'SA', 4: 'TAS', 5: 'VIC'}
+ZONE = {
+    1: 'NQ',
+    2: 'CQ',
+    3: 'SWQ',
+    4: 'SEQ',
+    5: 'SWNSW',
+    6: 'CAN',
+    7: 'NCEN',
+    8: 'NNS',
+    9: 'LV',
+    10: 'MEL',
+    11: 'CVIC',
+    12: 'NVIC',
+    13: 'NSA',
+    14: 'ADE',
+    15: 'SESA',
+    16: 'TAS'
+}
 
 DISPLAY_ORDER = [6, 7, 4, 5, 1, 16, 19, 2, 3, 8, 15, 18, 14, 17, 12, 13, 9, 10, \
                 11, 20, 21, 22, 23, 24, 25]

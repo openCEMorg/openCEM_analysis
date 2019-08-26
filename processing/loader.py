@@ -17,6 +17,7 @@ import pandas as pd
 from dateutil.parser import parse
 
 from json_sqlite import CONFIG
+from processing.const import ZONE
 
 # disabling unnecessary warnings
 pd.options.mode.chained_assignment = None  # default='warn'
@@ -163,15 +164,15 @@ class SqlFile():
          input to pandas.style html tables."""
         trans = self.data['trans']
         trans = trans.drop(['name', 'timestamp'], axis=1)
-        map_dict = {1: 'NSW', 2: 'QLD', 3: 'SA', 4: 'TAS', 5: 'VIC'}
+        map_dict = ZONE
         trans['region_id'] = trans['region_id'].map(map_dict)
         trans['technology_type_id'] = trans['technology_type_id'].map(map_dict)
         trans['value'] = trans['value'] / 10**3
         trans = trans.pivot_table(
             values='value',
             index=['region_id', 'technology_type_id'],
-            columns='year', aggfunc=np.sum
-        )
+            columns='year',
+            aggfunc=np.sum)
         # inserting breaks for html formatting
         trans.index.names = ['  Exported <br> From  ', '  Imported <br> To  ']
         trans.columns.names = ['Simulated <br> Years']
