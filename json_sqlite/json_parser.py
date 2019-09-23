@@ -8,6 +8,7 @@ __maintainer__ = "José Zapata"
 __email__ = "jose.zapata@itpau.com.au"
 __status__ = "Development"
 import json
+import linecache
 import os
 from collections import namedtuple
 
@@ -23,19 +24,27 @@ class CemoJsonFile(object):
 
     def __init__(self, filename="ISP_N_cp_sol.json"):
         self.filename = filename
-        self.load_json()
-        self.meta = self.json['meta']
+        self.meta = self.load_json_meta()['meta']
         self.dump_meta()
 
-    def load_json(self):
-        """loads json file (into attribute of class)"""
-        json_filepath = os.path.join(CONFIG['local']['json_path'], self.filename)
-        with open(json_filepath, "r") as _file:
-            self.json = json.load(_file)
+    def load_json_meta(self):
+        '''Read metadata for openCEM JSON file.
+
+        Return metadata entry for file in a single dictionary'''
+        return json.loads(linecache.getline(self.filename, 1))
+
+    def load_json_year(self, year):
+        '''Read single year from openCEM JSON file.
+
+        Return year entry for file in single dictionary'''
+        metadata = self.load_json_meta()
+        line = metadata['meta']['Years'].index(int(year)) + 2
+        return json.loads(linecache.getline(self.filename, line))
 
     def dump_meta(self):
         """ Dumps json metadata into its own json file."""
-        fname = os.path.join(CONFIG['local']['json_path'], ('meta_'+self.filename))
+        fname = os.path.join(CONFIG['local']['json_path'],
+                             ('meta_' + self.filename))
         with open(fname, 'w') as _file:
             json.dump(self.meta, _file)
 
@@ -43,7 +52,7 @@ class CemoJsonFile(object):
         """Process each year of data contained in the JSON file"""
         for year in self.meta['Years']:
             year_data = YearData(year)
-            year_data.load_data(self)
+            year_data.data = self.load_json_year(year)[str(year)]
             year_data.process_vars()
 
 
@@ -54,10 +63,6 @@ class YearData(object):
         self.year = year
         self.data = None
         self.objective_value = None
-
-    def load_data(self, cemo_json_file):
-        """Method that updates the data attribute. Maybe uncessessary"""
-        self.data = cemo_json_file.json[str(self.year)]
 
     def process_vars(self):
         """Method to process each variable dataset contained in VARIABLES """
